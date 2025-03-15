@@ -17,7 +17,7 @@ I will continuously update the pipelines and codes of population genomics and tr
 15. Other
 
 
-
+  
 ## The standard procedures of SNP Calling and QC
 ### 1. Mapping of reads and dealing of .bam files 
 1.1 利用samtools和BWA软件构建参考基因组索引
@@ -49,6 +49,8 @@ java -Xmx10g -jar /dt1/yinm/software/picard/picard.jar MarkDuplicates
 ```
 mosdepth -t 4 00.mapping/C1 00.mapping/C1.rmdup.bam
 ```
+
+  
 ### 2. SNP calling using GATK4
 2.1 利用HaplotypeCaller将bam文件转化成gvcf
 ```
@@ -73,25 +75,26 @@ mosdepth -t 4 00.mapping/C1 00.mapping/C1.rmdup.bam
 		-V 03.combineGVCF_split_Chr/03.Chr01_merge_220samples.gvcf.gz \
 		-O 04.genotype/Chr01_raw_220samples.vcf.gz
 ```
-2.4 拆分SNP和INDEL\
-**SNP**
-```
-SNP:
+2.4 拆分SNP和INDEL
+```bash
+#SNP:
 /dt1/share/software/gatk-4.4.0.0/gatk  SelectVariants \
 	-V 04.genotype/Chr01_raw_220samples.vcf.gz \
 	--select-type-to-include SNP \
 	-O 05.filter/Chr01_raw_220samples.SNP.vcf.gz
 
-INDEL:
+#INDEL:
 /dt1/share/software/gatk-4.4.0.0/gatk  SelectVariants \
 		-V 04.genotype/Chr01_raw_220samples.vcf.gz \
 		--select-type-to-include INDEL \
 		-O 05.filter/Chr01_raw_220samples.INDEL.vcf.gz
 ```
+
+  
 ## 3. Genotype Quality Control
 3.1 利用VariantFiltration对SNP和INDEL分别进行硬过滤
 ```bash
-SNP:
+#SNP:
 /dt1/share/software/gatk-4.4.0.0/gatk VariantFiltration \
 		-V 05.filter/Chr01_raw_220samples.SNP.vcf.gz \
 		-filter "QD < 2.0" --filter-name "QD2" \
@@ -103,7 +106,7 @@ SNP:
 		-filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8" \
 		-O 05.filter/Chr01_220samples.SNP.hardfilter.vcf.gz
 
-INDEL
+#INDEL
 /dt1/share/software/gatk-4.4.0.0/gatk VariantFiltration \
 		-V 05.filter/Chr01_raw_220samples.INDEL.vcf.gz \
 		-filter "QD < 2.0" --filter-name "QD2" \
@@ -124,6 +127,7 @@ head -n 4 00.summary_sample_depth.txt
 # C1103	12.81
 # C1104	12.21
 
+# filter_by_sample_depth.pl脚本的内容
 ############### filter_by_sample_depth.pl ###############
 #!/usr/bin/perl
 use strict;
@@ -188,40 +192,51 @@ while (<F2>) {
 close F2;
 ######################################################################
 ```
+3.3 合并每条染色体的vcf
+```
+/dt1/share/software/gatk-4.4.0.0/gatk  GatherVcfs -I 05.filter/Chr01_220samples.INDEL.final.recode.vcf -I 05.filter/Chr01_220samples.SNP.final.recode.vcf ......(etc.) -O tobacco220.vcf
+```
 
-3.3 计算样本的杂合度。对于自交系群体，可以考虑过滤掉高杂合样本
+3.4 计算样本的杂合度
 ```bash
-plink --bfile Tobacco216 --het --out Tobacco216
+# 将vcf转化成plink的格式
+plink --vcf tobacco220.vcf --make-bed --chr-set 24 --recode --out tobacco220
+# 计算杂合率
+plink --bfile tobacco220 --het --out tobacco220
 
-# 下面为输出结果格式，F列指越大，表示样本纯和度越高，负值代表样本是高杂合的。
+# 计算结果 .het 文件
 #   FID     IID       O(HOM)       E(HOM)        N(NM)            F
 # C1075   C1075      2966558    2.137e+06      2969718       0.9962
 # C1102   C1102      2973284    2.142e+06      2975577       0.9973
 ```
+F列的值越大，表示样本纯和度越高，负值代表样本是高杂合的。对于自交系群体，可以考虑过滤掉高杂合样本\
 
-3.4 计算位点杂合率。对于自交系群体，过滤掉杂合基因型比例大于5%的位点
+3.5 计算位点杂合率。对于自交系群体，过滤掉杂合基因型比例大于5%的位点
 ```bash
-plink --bfile vcf_prefix --chr-set 24 --hardy --out prefix
+plink --vcf your_vcf_file --make-bed --chr-set 24 --recode --out tobacco220
+plink --bfile vcf_file_prefix --chr-set 24 --hardy --out output_prefix
 
-head 09.tobacco220.SNP.hwe                               
+
+计算结果 .hwe 文件                               
 # CHR	SNP	TEST	A1	A2	GENO	O(HET)	E(HET)	P
 # 1	01_391	ALL(NP)	T	C	0/1/213	0.004673	0.004662	1
 # 1	01_743	ALL(NP)	T	C	6/0/207	0	0.05475	1.894e-12
 # 第七列是位点杂合率
 ```
 
-3.5 过滤高杂合的样本，以及高缺失率和低频的位点
+3.6过滤高杂合的样本，以及高缺失率和低频的位点
 ```bash
 # 过滤高杂合度的样本，以及过滤次等位基因频率小于0.05、缺失率小于0.2的位点
 # INDEL
-vcftools --vcf 05.filter/Chr01_220samples.INDEL.DPfilter.vcf --keep Tobacco215.list --max-missing 0.8 --maf 0.05 --recode --recode-INFO-all --out Chr01_220samples.INDEL.final
+vcftools --vcf your_vcf_file --keep Tobacco215.list --max-missing 0.8 --maf 0.05 --recode --recode-INFO-all --out output_prefix
 # SNP
-vcftools --vcf 05.filter/Chr01_220samples.SNP.DPfilter.vcf --keep Tobacco215.list --max-missing 0.8 --maf 0.05 --recode --recode-INFO-all --out Chr01_220samples.SNP.final
+vcftools --vcf your_vcf_file --keep Tobacco215.list --max-missing 0.8 --maf 0.05 --recode --recode-INFO-all --out output_prefix
 
-head Tobacco215.list                     
+head -n 3 Tobacco215.list                     
 #C1587
 #C1154
 #C727
 ```
-在实际分析中需要根据自己的分析目的进行样本和位点的过滤。由于我的群体是一个自交系群体，因此我过滤掉了杂合的样本（F < 0）。此外，有些分析应该保留稀有或低频的位点，例如计算核苷酸多样性\
-
+  
+在实际分析中需要根据自己的分析目的进行样本和位点的过滤。由于我的群体是一个自交系群体，因此我过滤掉了杂合的样本（F < 0）。不同的分析分析应该执行不同的过滤，特别是MAF。例如，计算核苷酸多样性应该保留稀有或低频的位点。此外，在对VCF进行过滤的时候，过滤顺序应该是先进行样本过滤，后执行位点过滤。所以，一般先对样本的缺失率、杂合度等进行计算，再对位点的缺失率、基因型频率、杂合率等进行过滤。\
+    
