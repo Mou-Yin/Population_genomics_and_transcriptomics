@@ -1,4 +1,4 @@
-# **Population transcriptomics of common tobacco**
+# **Population Genomic Analysis**
 I will continuously update the pipelines and codes of population genomics and transcriptomics, including
 1. SNP calling and QC
 2. PCA
