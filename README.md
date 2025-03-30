@@ -2,30 +2,30 @@
 
 
 - [**The pipelines and codes of population genomics and transcriptomics.**](#the-pipelines-and-codes-of-population-genomics-and-transcriptomics)
-- [The standard procedures SNP Calling and QC](#the-standard-procedures-snp-calling-and-qc)
+- [The standard procedures SNP Calling and QC (Done)](#the-standard-procedures-snp-calling-and-qc-done)
   - [1. Read mapping and dealing `.bam` file](#1-read-mapping-and-dealing-bam-file)
   - [2. 利用GATK4进行SNP Calling](#2-利用gatk4进行snp-calling)
   - [3. Genotype quality control](#3-genotype-quality-control)
-- [GWAS and QTL analysis](#gwas-and-qtl-analysis)
-- [Analysis of differentially expressed genes at population level](#analysis-of-differentially-expressed-genes-at-population-level)
-- [Weighted Gene Correlation Network Analysis (WGCNA)](#weighted-gene-correlation-network-analysis-wgcna)
-- [eQTL mapping and eQTG identification](#eqtl-mapping-and-eqtg-identification)
+- [GWAS and QTL analysis (coming soon)](#gwas-and-qtl-analysis-coming-soon)
+- [Analysis of differentially expressed genes at population level (Done)](#analysis-of-differentially-expressed-genes-at-population-level-done)
+- [Weighted Gene Correlation Network Analysis (WGCNA) (Coming soon)](#weighted-gene-correlation-network-analysis-wgcna-coming-soon)
+- [eQTL mapping and eQTG identification (Coming soon)](#eqtl-mapping-and-eqtg-identification-coming-soon)
   - [1. Normalization of gene expression matrices](#1-normalization-of-gene-expression-matrices)
   - [2. Using peer to remove batch effect](#2-using-peer-to-remove-batch-effect)
   - [3. eQTL mapping](#3-eqtl-mapping)
   - [4. Calculate the interval of QTL](#4-calculate-the-interval-of-qtl)
   - [5. Identification of eGTG based on WGCNA](#5-identification-of-egtg-based-on-wgcna)
-- [TWAS using FUSION](#twas-using-fusion)
+- [TWAS using FUSION (Coming soon)](#twas-using-fusion-coming-soon)
   - [Prepare input files](#prepare-input-files)
   - [Compute predictive models for each gene](#compute-predictive-models-for-each-gene)
   - [Perform the expression imputation](#perform-the-expression-imputation)
-- [Fine mapping of genes using cTWAS](#fine-mapping-of-genes-using-ctwas)
-- [其它有用的命令](#其它有用的命令)
-  - [PLINK v1.9软件的使用](#plink-v19软件的使用)
+- [Fine mapping of genes using cTWAS (Coming soon)](#fine-mapping-of-genes-using-ctwas-coming-soon)
+- [其它有用的命令 (In Progress)](#其它有用的命令-in-progress)
+  - [PLINK v1.9软件的使用 (In Progress)](#plink-v19软件的使用-in-progress)
   - [利用blupADC快速实现基因型数据的格式转换](#利用blupadc快速实现基因型数据的格式转换)
 
 
-# The standard procedures SNP Calling and QC
+# The standard procedures SNP Calling and QC (Done)
 ## 1. Read mapping and dealing `.bam` file
 1.1 利用`samtools`和`BWA`软件构建参考基因组索引
 ```
@@ -188,9 +188,10 @@ head -n 3 Tobacco215.list
 > 此外，VCF的过滤顺序也很重要，通常应该先进行样本过滤，后执行位点过滤。所以，一般先根据样本缺失率、杂合度等进行计算和过滤，再根据位点缺失率、基因型频率、杂合率等进行过滤。
 
 
-# GWAS and QTL analysis
-coming soon
-# Analysis of differentially expressed genes at population level
+# GWAS and QTL analysis (coming soon)
+
+
+# Analysis of differentially expressed genes at population level (Done)
 群体水平的差异表达基因分析应该使用Wilcoxon检验
 
 
@@ -292,10 +293,9 @@ write.table(result, "/dt2/yinm/project/tobacco/01.DEGs/02.DEG_resluts/AllGene_Se
 
 
 
-# Weighted Gene Correlation Network Analysis (WGCNA)
-coming soon
+# Weighted Gene Correlation Network Analysis (WGCNA) (Coming soon)
 
-# eQTL mapping and eQTG identification
+# eQTL mapping and eQTG identification (Coming soon)
 ## 1. Normalization of gene expression matrices
 
 ## 2. Using peer to remove batch effect
@@ -308,7 +308,7 @@ coming soon
 
 
 
-# TWAS using FUSION
+# TWAS using FUSION (Coming soon)
 
 ## Prepare input files
 
@@ -316,14 +316,16 @@ coming soon
 
 ## Perform the expression imputation
 
-# Fine mapping of genes using cTWAS
-coming soon
+
+
+# Fine mapping of genes using cTWAS (Coming soon)
 
 
 
 
-# 其它有用的命令
-## PLINK v1.9软件的使用
+
+# 其它有用的命令 (In Progress)
+## PLINK v1.9软件的使用 (In Progress)
 
 ped/map, bed/bim/fam, tped/tfam, 和VCF格式互换
 ```bash
