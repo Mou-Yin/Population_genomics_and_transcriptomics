@@ -165,6 +165,8 @@ head -n 3 Tobacco215.list
 #C1587
 #C1154
 #C727
+
+
 ```
 > [!TIP]
 > 在上述中，先用GATK的`VariantFiltration`程序对每个位点进行了硬过滤；然后基于每个样本的平均有效深度对每个样本的每个位点的深度进行检查，将测序深度异常的位点换成`./.`；之后我计算了样本的杂合度，发现有一个样本高杂合，因为我是自交系群体，因此过滤掉了这个样本；然后我针对每个位点，计算了群体中杂合基因型的比例，过滤比例大于5%的位点；同时过滤了位点的缺失率大于20%的位点，以及MAF小于0.05的位点。
@@ -209,6 +211,7 @@ plink --bfile geno_file_prefix --export vcf --out out_file_prefix
 ```
 
 使用`--keep-allele-order`参数保持REF和ALT的顺序
+
 使用`--allow-extra-chr`允许染色体的ID是非chr1或1的形式
 
 `PLINK`是为人类研究定制的软件，使用`--chr-set`允许处理超过22条的染色体
