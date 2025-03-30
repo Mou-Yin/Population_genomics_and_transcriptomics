@@ -1,6 +1,9 @@
 # **Population Genomic Analysis**
 I will continuously update the pipelines and codes of population genomics and transcriptomics, including
-# 1. SNP calling and QC
+
+## 目录
+[1. SNP calling and QC](#the-standard-procedures-of-snp-calling-and-qc)
+
 # 2. PCA
 # 3. Admixture
 # 4. Constucting Neighbour-Joining tree
@@ -16,11 +19,10 @@ I will continuously update the pipelines and codes of population genomics and tr
 # 14. SMR
 # 15. Other
 
-[1. SNP calling and QC](# The standard procedures of SNP Calling and QC)
 
 
   
-# The standard procedures of SNP Calling and QC
+## The standard procedures of SNP Calling and QC
 ### 1. Mapping of reads and dealing of .bam files 
 1.1 利用samtools和BWA软件构建参考基因组索引
 ```
