@@ -1,6 +1,6 @@
 # **Population Genomic Analysis**
 I will continuously update the pipelines and codes of population genomics and transcriptomics, including
-[# 1. SNP calling and QC](# The standard procedures of SNP Calling and QC)
+[1. SNP calling and QC](# The standard procedures of SNP Calling and QC)
 # 2. PCA
 # 3. Admixture
 # 4. Constucting Neighbour-Joining tree
