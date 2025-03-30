@@ -2,7 +2,7 @@
 I will continuously update the pipelines and codes of population genomics and transcriptomics, including
 
 ## 目录
-[##1. SNP calling and QC](#the-standard-procedures-of-snp-calling-and-qc)
+[## 1. SNP calling and QC](#the-standard-procedures-of-snp-calling-and-qc)
 
 # 2. PCA
 # 3. Admixture
