@@ -2,17 +2,23 @@
 
 
 - [**The pipelines and codes of population genomics and transcriptomics.**](#the-pipelines-and-codes-of-population-genomics-and-transcriptomics)
-- [SNP检查和质量控制标准操作](#snp检查和质量控制标准操作)
-  - [1. 重测序的比对和`.bam`文件处理](#1-重测序的比对和bam文件处理)
+- [The standard procedures SNP Calling and QC](#the-standard-procedures-snp-calling-and-qc)
+  - [1. Read mapping and dealing `.bam` file](#1-read-mapping-and-dealing-bam-file)
   - [2. 利用GATK4进行SNP Calling](#2-利用gatk4进行snp-calling)
   - [3. Genotype quality control](#3-genotype-quality-control)
+- [GWAS and QTL analysis](#gwas-and-qtl-analysis)
+- [Analysis of differentially expressed genes at population level](#analysis-of-differentially-expressed-genes-at-population-level)
+- [Weighted Gene Correlation Network Analysis (WGCNA)](#weighted-gene-correlation-network-analysis-wgcna)
+- [eQTL detection and eQTG identification](#eqtl-detection-and-eqtg-identification)
+- [TWAS using FUSION](#twas-using-fusion)
+- [Fine mapping of genes using cTWAS](#fine-mapping-of-genes-using-ctwas)
 - [其它有用的命令](#其它有用的命令)
   - [PLINK v1.9软件的使用](#plink-v19软件的使用)
-  - [利用`blupADC`快速实现基因型数据的格式转换](#利用blupadc快速实现基因型数据的格式转换)
+  - [利用blupADC快速实现基因型数据的格式转换](#利用blupadc快速实现基因型数据的格式转换)
 
 
 # The standard procedures SNP Calling and QC
-## 1. 重测序的比对和`.bam`文件处理 
+## 1. Read mapping and dealing `.bam` file
 1.1 利用`samtools`和`BWA`软件构建参考基因组索引
 ```
 samtools ref.fa
@@ -108,7 +114,7 @@ mosdepth -t 4 00.mapping/C1 00.mapping/C1.rmdup.bam
 		-filter "ReadPosRankSum < -20.0" --filter-name "ReadPosRankSum-20" \
 		-O 05.filter/Chr01_220samples.INDEL.hardfilter.vcf.gz
 ```
-3.2 利用[filter_by_sample_depth.pl](https://github.com/Mou-Yin/Population_genomics_and_transcriptomics/edit/main/filter_by_sample_depth.pl)根据每个样本的平均深度过滤 VCF 文件中的 SNP 和 Indel 位点。具体来说，它检查每个样本在每个位点的深度（DP 值），如果深度异常（低于平均深度的三分之一或高于三倍），则将该样本的基因型设置为缺失（./.）
+3.2 利用[filter_by_sample_depth.pl](C:\Users\hello\Desktop\scripts\filter_by_sample_depth.pl)根据每个样本的平均深度过滤 VCF 文件中的 SNP 和 Indel 位点。具体来说，它检查每个样本在每个位点的深度（DP 值），如果深度异常（低于平均深度的三分之一或高于三倍），则将该样本的基因型设置为缺失（./.）
 ```perl
 perl filter_by_sample_depth.pl 00.summary_sample_depth.txt 05.filter/Chr01_220samples.INDEL.hardfilter.vcf > 05.filter/Chr01_220samples.INDEL.DPfilter.vcf
 perl filter_by_sample_depth.pl 00.summary_sample_depth.txt 05.filter/Chr01_220samples.SNP.hardfilter.vcf > 05.filter/Chr01_220samples.SNP.DPfilter.vcf
@@ -165,8 +171,6 @@ head -n 3 Tobacco215.list
 #C1587
 #C1154
 #C727
-
-
 ```
 > [!TIP]
 > 在上述中，先用GATK的`VariantFiltration`程序对每个位点进行了硬过滤；然后基于每个样本的平均有效深度对每个样本的每个位点的深度进行检查，将测序深度异常的位点换成`./.`；之后我计算了样本的杂合度，发现有一个样本高杂合，因为我是自交系群体，因此过滤掉了这个样本；然后我针对每个位点，计算了群体中杂合基因型的比例，过滤比例大于5%的位点；同时过滤了位点的缺失率大于20%的位点，以及MAF小于0.05的位点。
@@ -176,6 +180,117 @@ head -n 3 Tobacco215.list
 > 此外，VCF的过滤顺序也很重要，通常应该先进行样本过滤，后执行位点过滤。所以，一般先根据样本缺失率、杂合度等进行计算和过滤，再根据位点缺失率、基因型频率、杂合率等进行过滤。
 
 
+# GWAS and QTL analysis
+coming soon
+# Analysis of differentially expressed genes at population level
+
+读取所有样本的表达量矩阵(00.sample860_filter_expr_mat.txt)，该文件包含215份样本的4个生长发育时期的基因表达数据。
+```
+# 读取表达量文件
+data <- fread("/dt2/yinm/project/tobacco/01.DEGs/00.sample860_filter_expr_mat.txt",header= T)
+# 提取苗期的表达量数据
+data_stage =  filter(data,Stage=="Seedling")
+data_stage = as.data.frame(data_stage)
+rownames(data_stage) <- data_stage$Ind1
+# 提取表达量矩阵并转置
+data1 = data_stage[,c(8:ncol(data_stage))]
+data2 = t(data1)
+```
+
+读取样本分组信息
+```
+info <- read.table("/dt2/yinm/project/tobacco/00.sample_info/tobacco220_info.txt",header = T)
+
+FT <- info[info$Type == "Fluecured", 2]
+CT <- info[info$Type == "Cigar", 2]
+BT <- info[info$Type == "Burley", 2]
+ST <- info[info$Type == "Suncured", 2]
+OT <- info[info$Type == "Oriental", 2]
+
+# 仅保留在表达矩阵中的样本，确保用于分析的样本确实存在于基因表达矩阵
+FT <- intersect(FT, colnames(data2))
+CT <- intersect(CT, colnames(data2))
+BT <- intersect(BT, colnames(data2))
+ST <- intersect(ST, colnames(data2))
+OT <- intersect(OT, colnames(data2))
+```
+
+提取这两个群体的基因表达矩阵，并过滤
+```
+# 设置要比较的两个群体
+pop1 = FT
+pop2 = CT
+
+two_pop_expr = data2[,c(pop1,pop2)]
+nrow(two_pop_expr)
+
+# 过滤掉在少于10个样本中表达的基因，即要求每个基因至少在10个样本中的表达，TPM > 0.5则认为表达。
+filtered_expr <- two_pop_expr[rowSums(two_pop_expr > 0.5) >= 10, ] 
+nrow(filtered_expr)
+```
+
+
+对表达量矩阵进行标准化。在比较两个群体的时候，应该提取两个群体的基因表达矩阵，然后进行标准化。
+```
+norm_expr = normalize.quantiles.robust(x = as.matrix(filtered_expr),use.log2 = FALSE,keep.names = T)
+```
+
+构建输出结果的数据框
+```
+result <- data.frame(Gene = rownames(norm_expr))
+```
+
+定义函数，用于计算每个基因的平均表达量，log2(fold change)，和Wilcoxon检验的p值
+```
+calculate_metrics <- function(gene_expression) {
+  # 提取群体1的基因表达
+  exp_group1 <- as.numeric(gene_expression[pop1])
+  exp_group2 <- as.numeric(gene_expression[pop2])
+  # 提取群体2的基因表达
+  mean_group1 <- mean(exp_group1, na.rm = TRUE)
+  mean_group2 <- mean(exp_group2, na.rm = TRUE)
+  # 计算 fold change
+  log2_fold_change <- log2(mean_group1 + 0.1) - log2(mean_group2 + 0.1)
+  ## 计算p值
+  p_value <- tryCatch({
+    wilcox.test(exp_group1, exp_group2)$p.value
+  }, error = function(e) NA)
+  # tryCatch({ ... }, error = function(e) NA): tryCatch() 是一个错误处理机制，用于捕获代码块中可能发生的错误
+  return(c(mean_group1, mean_group2, log2_fold_change, p_value))
+}
+```
+
+进行计算，fdr检验，和DEGs提取
+```
+result[, c("Mean_FT", "Mean_CT", "log2FC", "pvalue")] <- 
+  t(apply(norm_expr, 1, calculate_metrics)) #apply()函数用于对矩阵或数组的行或列应用函数 1代表对行进行操作
+
+result$Mean_FT <- round(result$Mean_FT,digits = 3) # 保留3为小数
+result$Mean_CT <- round(result$Mean_CT,digits = 3)
+
+# fdr
+result$padj <- p.adjust(result$pvalue, method = "fdr",  n = length(result$pvalue))
+
+# 提取差异表达的基因
+deg = filter(result, (log2FC >= 1 | log2FC <= -1) & padj < 0.01 )
+
+# 保存结果
+write.table(deg, "/dt2/yinm/project/tobacco/01.DEGs/02.DEG_resluts/DEGs_Seedling_pop1_vs_pop2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+write.table(result, "/dt2/yinm/project/tobacco/01.DEGs/02.DEG_resluts/AllGene_Seedling_pop1_vs_pop2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+```
+
+
+
+
+
+# Weighted Gene Correlation Network Analysis (WGCNA)
+coming soon
+# eQTL detection and eQTG identification
+coming soon
+# TWAS using FUSION
+coming soon
+# Fine mapping of genes using cTWAS
+coming soon
 
 
 
@@ -211,7 +326,6 @@ plink --bfile geno_file_prefix --export vcf --out out_file_prefix
 ```
 
 使用`--keep-allele-order`参数保持REF和ALT的顺序
-
 使用`--allow-extra-chr`允许染色体的ID是非chr1或1的形式
 
 `PLINK`是为人类研究定制的软件，使用`--chr-set`允许处理超过22条的染色体
@@ -265,8 +379,7 @@ plink --file $in --het --out $out
 
 
 
-
-## 利用`blupADC`快速实现基因型数据的格式转换
+## 利用blupADC快速实现基因型数据的格式转换
 
 ```R
 format_result=geno_format(
