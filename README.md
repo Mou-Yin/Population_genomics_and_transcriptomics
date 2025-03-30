@@ -1,7 +1,4 @@
-# **The pipelines and codes of population genomics and transcriptomics.**
 
-
-- [**The pipelines and codes of population genomics and transcriptomics.**](#the-pipelines-and-codes-of-population-genomics-and-transcriptomics)
 - [The standard procedures SNP Calling and QC (Done)](#the-standard-procedures-snp-calling-and-qc-done)
   - [1. Read mapping and dealing `.bam` file](#1-read-mapping-and-dealing-bam-file)
   - [2. 利用GATK4进行SNP Calling](#2-利用gatk4进行snp-calling)
