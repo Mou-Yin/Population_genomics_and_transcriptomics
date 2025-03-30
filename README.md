@@ -1,24 +1,24 @@
 # **Population Genomic Analysis**
 I will continuously update the pipelines and codes of population genomics and transcriptomics, including
-1. SNP calling and QC
-2. PCA
-3. Admixture
-4. Constucting Neighbour-Joining tree
-5. Selective sweeps
-6. Inference of haplotye blocks
-7. SNP and haploblock-based GWAS
-8. QTL analysis
-9. Quantification of genes or transcripts
-10. Normalization of expression matrix
-11. Elimination of RNA-seq batch effect
-12. eQTL
-13. TWAS
-14. SMR
-15. Other
+[# 1. SNP calling and QC](# The standard procedures of SNP Calling and QC)
+# 2. PCA
+# 3. Admixture
+# 4. Constucting Neighbour-Joining tree
+# 5. Selective sweeps
+# 6. Inference of haplotye blocks
+# 7. SNP and haploblock-based GWAS
+# 8. QTL analysis
+# 9. Quantification of genes or transcripts
+# 10. Normalization of expression matrix
+# 11. Elimination of RNA-seq batch effect
+# 12. eQTL
+# 13. TWAS
+# 14. SMR
+# 15. Other
 
 
   
-## The standard procedures of SNP Calling and QC
+# The standard procedures of SNP Calling and QC
 ### 1. Mapping of reads and dealing of .bam files 
 1.1 利用samtools和BWA软件构建参考基因组索引
 ```
