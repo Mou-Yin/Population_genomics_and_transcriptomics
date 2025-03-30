@@ -152,7 +152,7 @@ plink --vcf your_vcf_file --make-bed --chr-set 24 --recode --out tobacco220
 plink --bfile vcf_file_prefix --chr-set 24 --hardy --out output_prefix
 
 
-计算结果 .hwe 文件                               
+# 计算结果 .hwe 文件                               
 # CHR	SNP	TEST	A1	A2	GENO	O(HET)	E(HET)	P
 # 1	01_391	ALL(NP)	T	C	0/1/213	0.004673	0.004662	1
 # 1	01_743	ALL(NP)	T	C	6/0/207	0	0.05475	1.894e-12
@@ -186,7 +186,7 @@ coming soon
 群体水平的差异表达基因分析应该使用Wilcoxon检验
 
 
-读取所有样本的表达量矩阵(00.sample860_filter_expr_mat.txt)，该文件包含215份样本的4个生长发育时期的基因表达数据。
+1. 读取所有样本的表达量矩阵(00.sample860_filter_expr_mat.txt)，该文件包含215份样本的4个生长发育时期的基因表达数据。
 ```
 # 读取表达量文件
 data <- fread("/dt2/yinm/project/tobacco/01.DEGs/00.sample860_filter_expr_mat.txt",header= T)
@@ -199,7 +199,7 @@ data1 = data_stage[,c(8:ncol(data_stage))]
 data2 = t(data1) # 每一行一个基因，每一列一个样本
 ```
 
-读取样本分组信息
+2. 读取样本分组信息
 ```
 info <- read.table("/dt2/yinm/project/tobacco/00.sample_info/tobacco220_info.txt",header = T)
 # tobacco220_info.txt
@@ -222,7 +222,7 @@ ST <- intersect(ST, colnames(data2))
 OT <- intersect(OT, colnames(data2))
 ```
 
-提取这两个群体的基因表达矩阵，并过滤
+3. 提取这两个群体的基因表达矩阵，并过滤
 ```
 # 设置要比较的两个群体
 pop1 = FT
@@ -236,18 +236,12 @@ filtered_expr <- two_pop_expr[rowSums(two_pop_expr > 0.5) >= 10, ]
 nrow(filtered_expr)
 ```
 
-
-对表达量矩阵进行标准化。在比较两个群体的时候，应该提取两个群体的基因表达矩阵，然后进行标准化。
+4. 对表达量矩阵进行标准化。在比较两个群体的时候，应该提取两个群体的基因表达矩阵，然后进行标准化。
 ```
 norm_expr = normalize.quantiles.robust(x = as.matrix(filtered_expr),use.log2 = FALSE,keep.names = T)
 ```
 
-构建输出结果的数据框
-```
-result <- data.frame(Gene = rownames(norm_expr))
-```
-
-定义函数，用于计算每个基因的平均表达量，log2(fold change)，和Wilcoxon检验的p值
+5. 定义函数，用于计算每个基因的平均表达量，log2(fold change)，和Wilcoxon检验的p值
 ```
 calculate_metrics <- function(gene_expression) {
   # 提取群体1的基因表达
@@ -267,8 +261,10 @@ calculate_metrics <- function(gene_expression) {
 }
 ```
 
-进行计算，fdr检验，和DEGs提取
+6. 进行计算，fdr检验，和DEGs提取
 ```
+result <- data.frame(Gene = rownames(norm_expr))
+# 计算
 result[, c("Mean_FT", "Mean_CT", "log2FC", "pvalue")] <- 
   t(apply(norm_expr, 1, calculate_metrics)) #apply()函数用于对矩阵或数组的行或列应用函数 1代表对行进行操作
 
@@ -288,14 +284,15 @@ write.table(result, "/dt2/yinm/project/tobacco/01.DEGs/02.DEG_resluts/AllGene_Se
 
 
 
-
-
 # Weighted Gene Correlation Network Analysis (WGCNA)
 coming soon
+
 # eQTL detection and eQTG identification
 coming soon
+
 # TWAS using FUSION
 coming soon
+
 # Fine mapping of genes using cTWAS
 coming soon
 
