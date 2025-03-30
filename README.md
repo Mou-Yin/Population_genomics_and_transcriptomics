@@ -11,7 +11,7 @@
   - [利用`blupADC`快速实现基因型数据的格式转换](#利用blupadc快速实现基因型数据的格式转换)
 
 
-# SNP检查和质量控制标准操作
+# The standard procedures SNP Calling and QC
 ## 1. 重测序的比对和`.bam`文件处理 
 1.1 利用`samtools`和`BWA`软件构建参考基因组索引
 ```
