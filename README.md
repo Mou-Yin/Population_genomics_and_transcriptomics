@@ -103,7 +103,7 @@ mosdepth -t 4 00.mapping/C1 00.mapping/C1.rmdup.bam
 		-filter "ReadPosRankSum < -20.0" --filter-name "ReadPosRankSum-20" \
 		-O 05.filter/Chr01_220samples.INDEL.hardfilter.vcf.gz
 ```
-3.2 根据每个样本的平均深度过滤 VCF 文件中的 SNP 和 Indel 位点。具体来说，它检查每个样本在每个位点的深度（DP 值），如果深度异常（低于平均深度的三分之一或高于三倍），则将该样本的基因型设置为缺失（./.）
+3.2 根据每个样本的平均深度过滤 VCF 文件中的 SNP 和 Indel 位点。具体来说，它检查每个样本在每个位点的深度（DP 值），如果深度异常（低于平均深度的三分之一或高于三倍），则将该样本的基因型设置为缺失（./.）。运行脚本[filter_by_sample_depth.pl](https://github.com/Mou-Yin/Population_genomics_and_transcriptomics/blob/main/filter_by_sample_depth.pl)
 ```perl
 perl filter_by_sample_depth.pl 00.summary_sample_depth.txt 05.filter/Chr01_220samples.INDEL.hardfilter.vcf > 05.filter/Chr01_220samples.INDEL.DPfilter.vcf
 perl filter_by_sample_depth.pl 00.summary_sample_depth.txt 05.filter/Chr01_220samples.SNP.hardfilter.vcf > 05.filter/Chr01_220samples.SNP.DPfilter.vcf
@@ -115,71 +115,7 @@ head -n 4 00.summary_sample_depth.txt
 # C1103	12.81
 # C1104	12.21
 
-# filter_by_sample_depth.pl脚本的内容
-############### filter_by_sample_depth.pl ###############
-#!/usr/bin/perl
-use strict;
-use warnings;
-# Get the path to the depth file
-my ($depth_file,$vcf_file) =  @ARGV or die "Usage: $0 depth_file < input.vcf > output.vcf\n";
-# Read the sample average depth information
-open F1,"$depth_file";
-my %sample_depth;
-while (<F1>) {
-    chomp;
-    next if /^\s*$/; # Skip empty lines
-    my ($sample, $avg_depth) = split;
-    $sample_depth{$sample} = $avg_depth;
-}
-close F1;
-# Process the VCF file
-open F2,"$vcf_file";
-my @samples;
-while (<F2>) {
-    chomp;
-    if ( $_ =~ /^##/) {
-        # VCF header lines, print as is
-        print "$_\n";
-    } elsif ($_ =~ /^#CHROM/) {
-        # Extract sample names
-        print "$_\n";
-        my @fields = split(/\t/, $_);
-        @samples = @fields[9..$#fields];
-    } else {
-        my @fields = split /\t/;
-	next if $fields[6] ne "PASS";
-	next if $fields[4] =~ /,/;
-	my $format = $fields[8];
-        my @format_fields = split(/:/, $format);
-        my %format_index = map { $format_fields[$_] => $_ } 0..$#format_fields;
-        # Check if DP field exists
-        if (exists $format_index{'DP'}) {
-            my $dp_index = $format_index{'DP'};
-            for (my $i = 9; $i < @fields; $i++) {
-                my $sample = $samples[$i - 9];
-                my $avg_depth = $sample_depth{$sample};
-                my $genotype = $fields[$i];
-                next if $genotype =~ /\.\/\./; # Skip missing genotypes
-                my @genotype_fields = split(/:/, $genotype);
-                my $dp_value = $genotype_fields[$dp_index];
-                $dp_value = 0 if $dp_value eq '.'; # Treat missing DP as 0
-                # Check if DP value is within range
-                if ($dp_value <= $avg_depth / 3 || $dp_value >= $avg_depth * 3) {
-                    $fields[$i] = './.';
-                }
-            }
-        } else {
-            # If no DP field, set all genotypes to missing
-            for (my $i = 9; $i < @fields; $i++) {
-                $fields[$i] = './.';
-            }
-        }
-        print join("\t", @fields), "\n";
-    }
-}
-close F2;
-######################################################################
-```
+
 3.3 合并每条染色体的vcf
 ```
 /dt1/share/software/gatk-4.4.0.0/gatk  GatherVcfs -I 05.filter/Chr01_220samples.INDEL.final.recode.vcf -I 05.filter/Chr01_220samples.SNP.final.recode.vcf ......(etc.) -O tobacco220.vcf
