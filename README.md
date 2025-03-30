@@ -114,7 +114,7 @@ mosdepth -t 4 00.mapping/C1 00.mapping/C1.rmdup.bam
 		-filter "ReadPosRankSum < -20.0" --filter-name "ReadPosRankSum-20" \
 		-O 05.filter/Chr01_220samples.INDEL.hardfilter.vcf.gz
 ```
-3.2 利用[filter_by_sample_depth.pl](C:\Users\hello\Desktop\scripts\filter_by_sample_depth.pl)根据每个样本的平均深度过滤 VCF 文件中的 SNP 和 Indel 位点。具体来说，它检查每个样本在每个位点的深度（DP 值），如果深度异常（低于平均深度的三分之一或高于三倍），则将该样本的基因型设置为缺失（./.）
+3.2 利用[filter_by_sample_depth.pl](https://github.com/Mou-Yin/Population_genomics_and_transcriptomics/blob/main/scripts/filter_by_sample_depth.pl)根据每个样本的平均深度过滤 VCF 文件中的 SNP 和 Indel 位点。具体来说，它检查每个样本在每个位点的深度（DP 值），如果深度异常（低于平均深度的三分之一或高于三倍），则将该样本的基因型设置为缺失（./.）
 ```perl
 perl filter_by_sample_depth.pl 00.summary_sample_depth.txt 05.filter/Chr01_220samples.INDEL.hardfilter.vcf > 05.filter/Chr01_220samples.INDEL.DPfilter.vcf
 perl filter_by_sample_depth.pl 00.summary_sample_depth.txt 05.filter/Chr01_220samples.SNP.hardfilter.vcf > 05.filter/Chr01_220samples.SNP.DPfilter.vcf
@@ -183,6 +183,8 @@ head -n 3 Tobacco215.list
 # GWAS and QTL analysis
 coming soon
 # Analysis of differentially expressed genes at population level
+群体水平的差异表达基因分析应该使用Wilcoxon检验
+
 
 读取所有样本的表达量矩阵(00.sample860_filter_expr_mat.txt)，该文件包含215份样本的4个生长发育时期的基因表达数据。
 ```
@@ -194,12 +196,17 @@ data_stage = as.data.frame(data_stage)
 rownames(data_stage) <- data_stage$Ind1
 # 提取表达量矩阵并转置
 data1 = data_stage[,c(8:ncol(data_stage))]
-data2 = t(data1)
+data2 = t(data1) # 每一行一个基因，每一列一个样本
 ```
 
 读取样本分组信息
 ```
 info <- read.table("/dt2/yinm/project/tobacco/00.sample_info/tobacco220_info.txt",header = T)
+# tobacco220_info.txt
+# Type	ID	Accessions	Name	Era	ID
+# Fluecured	C1	KT001	Hongda	1989	C0001
+# Fluecured	C2	KT002	K326	1991	C0002
+# Fluecured	C3	KT003	K346	1997	C0003
 
 FT <- info[info$Type == "Fluecured", 2]
 CT <- info[info$Type == "Cigar", 2]
