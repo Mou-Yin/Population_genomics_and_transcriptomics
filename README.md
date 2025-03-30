@@ -9,8 +9,16 @@
 - [GWAS and QTL analysis](#gwas-and-qtl-analysis)
 - [Analysis of differentially expressed genes at population level](#analysis-of-differentially-expressed-genes-at-population-level)
 - [Weighted Gene Correlation Network Analysis (WGCNA)](#weighted-gene-correlation-network-analysis-wgcna)
-- [eQTL detection and eQTG identification](#eqtl-detection-and-eqtg-identification)
+- [eQTL mapping and eQTG identification](#eqtl-mapping-and-eqtg-identification)
+  - [1. Normalization of gene expression matrices](#1-normalization-of-gene-expression-matrices)
+  - [2. Using peer to remove batch effect](#2-using-peer-to-remove-batch-effect)
+  - [3. eQTL mapping](#3-eqtl-mapping)
+  - [4. Calculate the interval of QTL](#4-calculate-the-interval-of-qtl)
+  - [5. Identification of eGTG based on WGCNA](#5-identification-of-egtg-based-on-wgcna)
 - [TWAS using FUSION](#twas-using-fusion)
+  - [Prepare input files](#prepare-input-files)
+  - [Compute predictive models for each gene](#compute-predictive-models-for-each-gene)
+  - [Perform the expression imputation](#perform-the-expression-imputation)
 - [Fine mapping of genes using cTWAS](#fine-mapping-of-genes-using-ctwas)
 - [其它有用的命令](#其它有用的命令)
   - [PLINK v1.9软件的使用](#plink-v19软件的使用)
@@ -287,11 +295,26 @@ write.table(result, "/dt2/yinm/project/tobacco/01.DEGs/02.DEG_resluts/AllGene_Se
 # Weighted Gene Correlation Network Analysis (WGCNA)
 coming soon
 
-# eQTL detection and eQTG identification
-coming soon
+# eQTL mapping and eQTG identification
+## 1. Normalization of gene expression matrices
+
+## 2. Using peer to remove batch effect
+
+## 3. eQTL mapping
+
+## 4. Calculate the interval of QTL
+
+## 5. Identification of eGTG based on WGCNA
+
+
 
 # TWAS using FUSION
-coming soon
+
+## Prepare input files
+
+## Compute predictive models for each gene
+
+## Perform the expression imputation
 
 # Fine mapping of genes using cTWAS
 coming soon
